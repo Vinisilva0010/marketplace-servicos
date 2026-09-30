@@ -8,6 +8,13 @@
       "when": 1790805721980,
       "tag": "0000_fluffy_skin",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1790808187689,
+      "tag": "0001_fuzzy_rattler",
+      "breakpoints": true
     }
   ]
 }

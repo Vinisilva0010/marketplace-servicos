@@ -29,12 +29,14 @@ export async function getProviders() {
 export async function createServiceRequest(data: {
   clientId: number;
   providerId: number;
+  description: string;
 }) {
   const [request] = await db
     .insert(serviceRequests)
     .values({
       clientId: data.clientId,
       providerId: data.providerId,
+      description: data.description,
     })
     .returning();
   return request;

@@ -25,6 +25,7 @@ export const serviceRequests = pgTable("service_requests", {
   id: serial("id").primaryKey(),
   clientId: integer("client_id").notNull().references(() => users.id),
   providerId: integer("provider_id").notNull().references(() => providers.id),
+  description: text("description").notNull(),
   status: varchar("status", { length: 20 }).notNull().default("pending"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
