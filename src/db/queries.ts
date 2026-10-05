@@ -1,43 +1,83 @@
-import { eq } from "drizzle-orm";
+import { eq, and, sql } from "drizzle-orm";
 import { db } from "./index";
-import { users, providers, categories, serviceRequests } from "./schema";
+import {
+  usuarios, categorias, cidades, prestadores,
+  servicosOferecidos, prestadoresCidades,
+  solicitacoesServico, propostas,
+} from "./schema";
 
-export async function createUser(data: {
-  name: string;
-  email: string;
-  passwordHash: string;
-  role: "client" | "provider";
-}) {
-  const [user] = await db.insert(users).values(data).returning();
-  return user;
+export async function listarCategorias() {
+  return db.select().from(categorias).orderBy(categorias.nome);
 }
 
-export async function getProviders() {
+export async function listarCidades() {
+  return db.select().from(cidades).orderBy(cidades.nome);
+}
+
+export async function listarPrestadores() {
   return db
     .select({
-      id: providers.id,
-      bio: providers.bio,
-      region: providers.region,
-      name: users.name,
-      category: categories.name,
+      id: prestadores.id,
+      nome: usuarios.nome,
+      apresentacao: prestadores.apresentacao,
+      anosExperiencia: prestadores.anosExperiencia,
+      verificado: prestadores.verificado,
     })
-    .from(providers)
-    .innerJoin(users, eq(providers.userId, users.id))
-    .innerJoin(categories, eq(providers.categoryId, categories.id));
+    .from(prestadores)
+    .innerJoin(usuarios, eq(usuarios.id, prestadores.usuarioId))
+    .orderBy(usuarios.nome);
 }
 
-export async function createServiceRequest(data: {
-  clientId: number;
-  providerId: number;
-  description: string;
-}) {
-  const [request] = await db
-    .insert(serviceRequests)
-    .values({
-      clientId: data.clientId,
-      providerId: data.providerId,
-      description: data.description,
+export async function contarPorCategoria() {
+  return db
+    .select({
+      id: categorias.id,
+      nome: categorias.nome,
+      descricao: categorias.descricao,
+      totalServicos: sql<number>`count(${servicosOferecidos.id})`,
     })
-    .returning();
-  return request;
+    .from(categorias)
+    .leftJoin(servicosOferecidos, eq(servicosOferecidos.categoriaId, categorias.id))
+    .groupBy(categorias.id, categorias.nome, categorias.descricao)
+    .orderBy(categorias.nome);
+}
+
+export async function buscarServicos(filtro: {
+  categoriaId?: number;
+  cidadeId?: number;
+}) {
+  const condicoes = [];
+
+  if (filtro.categoriaId) {
+    condicoes.push(eq(servicosOferecidos.categoriaId, filtro.categoriaId));
+  }
+
+  if (filtro.cidadeId) {
+    condicoes.push(
+      sql`EXISTS (SELECT 1 FROM prestadores_cidades pc WHERE pc.prestador_id = ${prestadores.id} AND pc.cidade_id = ${filtro.cidadeId})`
+    );
+  }
+
+  const consulta = db
+    .select({
+      servicoId: servicosOferecidos.id,
+      titulo: servicosOferecidos.titulo,
+      precoBase: servicosOferecidos.precoBase,
+      unidadePreco: servicosOferecidos.unidadePreco,
+      prestadorId: prestadores.id,
+      prestadorNome: usuarios.nome,
+      anosExperiencia: prestadores.anosExperiencia,
+      verificado: prestadores.verificado,
+      categoriaNome: categorias.nome,
+    })
+    .from(servicosOferecidos)
+    .innerJoin(prestadores, eq(prestadores.id, servicosOferecidos.prestadorId))
+    .innerJoin(usuarios, eq(usuarios.id, prestadores.usuarioId))
+    .innerJoin(categorias, eq(categorias.id, servicosOferecidos.categoriaId));
+
+  if (condicoes.length > 0) {
+    return consulta.where(and(...condicoes));
+  }
+
+  return consulta;
 }
