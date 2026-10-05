@@ -166,10 +166,11 @@ export default async function PerfilPrestador({ usuarioId }: { usuarioId: number
             </p>
             <p><input type="submit" value="Salvar alterações" /></p>
           </form>
-          <form action={apagarServico}>
-            <input type="hidden" name="servicoId" value={servico.id} />
-            <p><input type="submit" value="Remover este serviço" /></p>
-          </form>
+          <p>
+            <a href={`/confirmar?acao=removerServico&id=${servico.id}&volta=/perfil`}>
+              Remover este serviço
+            </a>
+          </p>
           <hr />
         </div>
       ))}

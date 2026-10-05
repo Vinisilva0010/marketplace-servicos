@@ -12,7 +12,7 @@ export const usuarios = pgTable("usuarios", {
   email: varchar("email", { length: 150 }).notNull().unique(),
   senhaHash: varchar("senha_hash", { length: 255 }).notNull(),
   telefone: varchar("telefone", { length: 20 }),
-  cpf: varchar("cpf", { length: 14 }),
+  cpf: varchar("cpf", { length: 14 }).unique(),
   dataNascimento: date("data_nascimento"),
   tipo: varchar("tipo", { length: 20 }).notNull(),
   ativo: boolean("ativo").notNull().default(true),

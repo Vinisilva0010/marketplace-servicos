@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { listarCategorias, listarCidades } from "@/db/queries";
-import { cadastrarCliente, cadastrarPrestador, emailJaUsado } from "@/db/cadastro";
+import { cadastrarCliente, cadastrarPrestador, emailJaUsado, cpfJaUsado } from "@/db/cadastro";
 
 export const dynamic = "force-dynamic";
 
@@ -27,6 +27,12 @@ export default async function PaginaCadastro({
 
     if (await emailJaUsado(email)) {
       redirect(`/cadastro?tipo=${tipoEscolhido}&pessoa=${pessoaEscolhida}&erro=email`);
+    }
+
+    const cpfInformado = String(formulario.get("cpf")).trim();
+
+    if (await cpfJaUsado(cpfInformado)) {
+      redirect(`/cadastro?tipo=${tipoEscolhido}&pessoa=${pessoaEscolhida}&erro=cpf`);
     }
 
     const pessoais = {
@@ -80,6 +86,13 @@ export default async function PaginaCadastro({
 
       {parametros.erro === "email" && (
         <p className="aviso">Este email já está cadastrado. Use outro email.</p>
+      )}
+
+      {parametros.erro === "cpf" && (
+        <p className="aviso">
+          Este CPF já está cadastrado. Se a conta é sua,{" "}
+          <a href="/entrar">entre com seu email e senha</a>.
+        </p>
       )}
 
       <p>

@@ -3,6 +3,11 @@ import { eq } from "drizzle-orm";
 import { db } from "./index";
 import { usuarios, enderecos, prestadores, servicosOferecidos, prestadoresCidades } from "./schema";
 
+export async function cpfJaUsado(cpf: string) {
+  const achados = await db.select({ id: usuarios.id }).from(usuarios).where(eq(usuarios.cpf, cpf));
+  return achados.length > 0;
+}
+
 export async function emailJaUsado(email: string) {
   const achados = await db.select({ id: usuarios.id }).from(usuarios).where(eq(usuarios.email, email));
   return achados.length > 0;

@@ -203,11 +203,11 @@ export default async function PaginaSolicitacao({
       )}
 
       {souDono && solicitacao.status === "em andamento" && (
-        <form action={confirmarConclusao}>
-          <p>
-            <input type="submit" value="Confirmar que o serviço foi concluído" />
-          </p>
-        </form>
+        <p>
+          <a href={`/confirmar?acao=concluir&id=${solicitacaoId}&volta=/solicitacoes/${solicitacaoId}`}>
+            Confirmar que o serviço foi concluído
+          </a>
+        </p>
       )}
 
       {souDono && (
@@ -246,10 +246,9 @@ export default async function PaginaSolicitacao({
                     <td>{proposta.status}</td>
                     <td>
                       {solicitacao.status === "aberta" && proposta.status === "enviada" ? (
-                        <form action={escolherProposta}>
-                          <input type="hidden" name="propostaId" value={proposta.id} />
-                          <input type="submit" value="Aceitar" />
-                        </form>
+                        <a href={`/confirmar?acao=aceitar&id=${proposta.id}&extra=${solicitacaoId}&volta=/solicitacoes/${solicitacaoId}`}>
+                          Aceitar
+                        </a>
                       ) : (
                         "-"
                       )}
@@ -390,9 +389,11 @@ export default async function PaginaSolicitacao({
               ? "As propostas recebidas serão canceladas e o pedido sai do ar."
               : "O serviço será cancelado e o valor retido será devolvido a você."}
           </p>
-          <form action={cancelar}>
-            <p><input type="submit" value="Cancelar este pedido" /></p>
-          </form>
+          <p>
+            <a href={`/confirmar?acao=cancelar&id=${solicitacaoId}&volta=/solicitacoes/${solicitacaoId}`}>
+              Cancelar este pedido
+            </a>
+          </p>
         </>
       )}
 

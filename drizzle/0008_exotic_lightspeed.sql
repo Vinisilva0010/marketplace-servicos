@@ -1,0 +1,1 @@
+ALTER TABLE "usuarios" ADD CONSTRAINT "usuarios_cpf_unique" UNIQUE("cpf");
