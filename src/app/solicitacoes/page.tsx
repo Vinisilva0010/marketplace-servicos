@@ -31,6 +31,8 @@ export default async function PaginaSolicitacoes({
         <a href="/solicitacoes?status=em andamento">Em andamento</a>
         {" | "}
         <a href="/solicitacoes?status=concluida">Concluídos</a>
+        {" | "}
+        <a href="/solicitacoes?status=cancelada">Cancelados</a>
         {logado && (
           <>
             {" | "}

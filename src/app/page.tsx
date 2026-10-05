@@ -3,6 +3,8 @@ import { contarPorCategoria } from "@/db/queries";
 import { buscarPrestadorPorUsuario } from "@/db/perfil";
 import { painelContratante, painelPrestador } from "@/db/paineis";
 import { convitesDoPrestador } from "@/db/convites";
+import { recusarConvite } from "@/db/cancelamentos";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
@@ -206,7 +208,17 @@ async function PainelPrestador({ usuarioId, nome }: { usuarioId: number; nome: s
 
   const painel = await painelPrestador(prestador.id);
   const convitesRecebidos = await convitesDoPrestador(prestador.id);
-  const convitesAbertos = convitesRecebidos.filter((c) => c.status === "aberta");
+  const convitesAbertos = convitesRecebidos;
+
+  async function recusar(formulario: FormData) {
+    "use server";
+    const atual = await usuarioLogado();
+    if (!atual) redirect("/entrar");
+    const meu = await buscarPrestadorPorUsuario(atual.id);
+    if (!meu) redirect("/perfil");
+    await recusarConvite(Number(formulario.get("conviteId")), meu.id);
+    redirect("/");
+  }
 
   return (
     <div>
@@ -246,6 +258,7 @@ async function PainelPrestador({ usuarioId, nome }: { usuarioId: number; nome: s
                 <th>Contratante</th>
                 <th>Local</th>
                 <th>Orçamento</th>
+                <th>Ação</th>
               </tr>
             </thead>
             <tbody>
@@ -258,6 +271,12 @@ async function PainelPrestador({ usuarioId, nome }: { usuarioId: number; nome: s
                   <td>{convite.contratante}</td>
                   <td>{convite.bairro} - {convite.cidade}</td>
                   <td>{convite.orcamentoMaximo ? `R$ ${convite.orcamentoMaximo}` : "Não informado"}</td>
+                  <td>
+                    <form action={recusar}>
+                      <input type="hidden" name="conviteId" value={convite.id} />
+                      <input type="submit" value="Não tenho interesse" />
+                    </form>
+                  </td>
                 </tr>
               ))}
             </tbody>

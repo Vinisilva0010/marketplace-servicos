@@ -5,6 +5,7 @@ import {
   buscarSolicitacao, listarPropostas, propostaDoPrestador,
   enviarProposta, aceitarProposta,
 } from "@/db/propostas";
+import { cancelarPedido } from "@/db/cancelamentos";
 import {
   listarMensagens, enviarMensagem, buscarPropostaAceita,
   buscarPagamento, concluirServico, buscarAvaliacao,
@@ -134,6 +135,14 @@ export default async function PaginaSolicitacao({
       comentario: String(formulario.get("comentario")).trim(),
     });
 
+    redirect(`/solicitacoes/${solicitacaoId}`);
+  }
+
+  async function cancelar() {
+    "use server";
+    const atual = await usuarioLogado();
+    if (!atual) redirect("/entrar");
+    await cancelarPedido(solicitacaoId, atual.id);
     redirect(`/solicitacoes/${solicitacaoId}`);
   }
 
@@ -371,6 +380,24 @@ export default async function PaginaSolicitacao({
             <p className="aviso">Este serviço ainda não foi avaliado.</p>
           )}
         </>
+      )}
+
+      {souDono && (solicitacao.status === "aberta" || solicitacao.status === "em andamento") && (
+        <>
+          <h3>Cancelar pedido</h3>
+          <p>
+            {solicitacao.status === "aberta"
+              ? "As propostas recebidas serão canceladas e o pedido sai do ar."
+              : "O serviço será cancelado e o valor retido será devolvido a você."}
+          </p>
+          <form action={cancelar}>
+            <p><input type="submit" value="Cancelar este pedido" /></p>
+          </form>
+        </>
+      )}
+
+      {solicitacao.status === "cancelada" && (
+        <p className="aviso">Este pedido foi cancelado pelo contratante.</p>
       )}
 
       <p><a href="/solicitacoes">Voltar para a lista</a></p>

@@ -1,0 +1,1 @@
+ALTER TABLE "convites" ADD COLUMN "status" varchar(20) DEFAULT 'pendente' NOT NULL;

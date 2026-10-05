@@ -122,5 +122,6 @@ export const convites = pgTable("convites", {
   id: serial("id").primaryKey(),
   solicitacaoId: integer("solicitacao_id").notNull().references(() => solicitacoesServico.id),
   prestadorId: integer("prestador_id").notNull().references(() => prestadores.id),
+  status: varchar("status", { length: 20 }).notNull().default("pendente"),
   dataEnvio: timestamp("data_envio").notNull().defaultNow(),
 });

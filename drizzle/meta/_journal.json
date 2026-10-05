@@ -50,6 +50,13 @@
       "when": 1791243047972,
       "tag": "0006_neat_shocker",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1791243612087,
+      "tag": "0007_sturdy_red_skull",
+      "breakpoints": true
     }
   ]
 }

@@ -42,6 +42,7 @@ export async function convitesDoPrestador(prestadorId: number) {
   return db
     .select({
       id: convites.id,
+      status: convites.status,
       dataEnvio: convites.dataEnvio,
       solicitacaoId: solicitacoesServico.id,
       titulo: solicitacoesServico.titulo,
@@ -59,7 +60,7 @@ export async function convitesDoPrestador(prestadorId: number) {
     .innerJoin(usuarios, eq(usuarios.id, solicitacoesServico.clienteId))
     .innerJoin(enderecos, eq(enderecos.id, solicitacoesServico.enderecoId))
     .innerJoin(cidades, eq(cidades.id, enderecos.cidadeId))
-    .where(eq(convites.prestadorId, prestadorId))
+    .where(and(eq(convites.prestadorId, prestadorId), eq(convites.status, "pendente")))
     .orderBy(desc(convites.dataEnvio));
 }
 
