@@ -106,3 +106,27 @@ export async function aceitarProposta(propostaId: number, solicitacaoId: number)
     });
   });
 }
+
+export async function listarPropostasDoPrestador(prestadorId: number) {
+  return db
+    .select({
+      id: propostas.id,
+      valor: propostas.valor,
+      prazoDias: propostas.prazoDias,
+      status: propostas.status,
+      dataEnvio: propostas.dataEnvio,
+      solicitacaoId: solicitacoesServico.id,
+      solicitacaoTitulo: solicitacoesServico.titulo,
+      solicitacaoStatus: solicitacoesServico.status,
+      categoria: categorias.nome,
+      contratante: usuarios.nome,
+      cidade: cidades.nome,
+    })
+    .from(propostas)
+    .innerJoin(solicitacoesServico, eq(solicitacoesServico.id, propostas.solicitacaoId))
+    .innerJoin(categorias, eq(categorias.id, solicitacoesServico.categoriaId))
+    .innerJoin(usuarios, eq(usuarios.id, solicitacoesServico.clienteId))
+    .innerJoin(enderecos, eq(enderecos.id, solicitacoesServico.enderecoId))
+    .innerJoin(cidades, eq(cidades.id, enderecos.cidadeId))
+    .where(eq(propostas.prestadorId, prestadorId));
+}

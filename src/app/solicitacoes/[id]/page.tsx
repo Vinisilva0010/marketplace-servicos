@@ -5,6 +5,11 @@ import {
   buscarSolicitacao, listarPropostas, propostaDoPrestador,
   enviarProposta, aceitarProposta,
 } from "@/db/propostas";
+import {
+  listarMensagens, enviarMensagem, buscarPropostaAceita,
+  buscarPagamento, concluirServico, buscarAvaliacao,
+  criarAvaliacao, responderAvaliacao,
+} from "@/db/acompanhamento";
 
 export const dynamic = "force-dynamic";
 
@@ -34,18 +39,22 @@ export default async function PaginaSolicitacao({
   const minhaProposta = meuPrestador ? await propostaDoPrestador(solicitacaoId, meuPrestador.id) : null;
   const propostasRecebidas = souDono ? await listarPropostas(solicitacaoId) : [];
 
+  const aceita = await buscarPropostaAceita(solicitacaoId);
+  const souPrestadorAceito = Boolean(meuPrestador && aceita && aceita.prestadorId === meuPrestador.id);
+  const participo = souDono || souPrestadorAceito;
+
+  const pagamento = aceita ? await buscarPagamento(aceita.id) : null;
+  const conversa = participo ? await listarMensagens(solicitacaoId) : [];
+  const avaliacao = await buscarAvaliacao(solicitacaoId);
+
   async function mandarProposta(formulario: FormData) {
     "use server";
-
     const atual = await usuarioLogado();
     if (!atual || atual.tipo !== "prestador") redirect("/entrar");
-
     const meu = await buscarPrestadorPorUsuario(atual.id);
     if (!meu) redirect("/perfil");
-
     const jaEnviou = await propostaDoPrestador(solicitacaoId, meu.id);
     if (jaEnviou) redirect(`/solicitacoes/${solicitacaoId}`);
-
     await enviarProposta({
       solicitacaoId: solicitacaoId,
       prestadorId: meu.id,
@@ -53,25 +62,94 @@ export default async function PaginaSolicitacao({
       prazoDias: Number(formulario.get("prazoDias")),
       mensagem: String(formulario.get("mensagem")).trim(),
     });
-
     redirect(`/solicitacoes/${solicitacaoId}`);
   }
 
   async function escolherProposta(formulario: FormData) {
     "use server";
-
     const atual = await usuarioLogado();
     const pedido = await buscarSolicitacao(solicitacaoId);
-
-    if (!atual || !pedido || pedido.clienteId !== atual.id) {
-      redirect(`/solicitacoes/${solicitacaoId}`);
-    }
-
-    if (pedido.status !== "aberta") {
-      redirect(`/solicitacoes/${solicitacaoId}`);
-    }
-
+    if (!atual || !pedido || pedido.clienteId !== atual.id) redirect(`/solicitacoes/${solicitacaoId}`);
+    if (pedido.status !== "aberta") redirect(`/solicitacoes/${solicitacaoId}`);
     await aceitarProposta(Number(formulario.get("propostaId")), solicitacaoId);
+    redirect(`/solicitacoes/${solicitacaoId}`);
+  }
+
+  async function mandarMensagem(formulario: FormData) {
+    "use server";
+    const atual = await usuarioLogado();
+    if (!atual) redirect("/entrar");
+
+    const pedido = await buscarSolicitacao(solicitacaoId);
+    const propostaDoPedido = await buscarPropostaAceita(solicitacaoId);
+    const meu = atual.tipo === "prestador" ? await buscarPrestadorPorUsuario(atual.id) : null;
+
+    const podeFalar =
+      pedido?.clienteId === atual.id ||
+      Boolean(meu && propostaDoPedido && propostaDoPedido.prestadorId === meu.id);
+
+    if (!podeFalar) redirect(`/solicitacoes/${solicitacaoId}`);
+
+    await enviarMensagem({
+      solicitacaoId: solicitacaoId,
+      remetenteId: atual.id,
+      conteudo: String(formulario.get("conteudo")).trim(),
+    });
+
+    redirect(`/solicitacoes/${solicitacaoId}`);
+  }
+
+  async function confirmarConclusao() {
+    "use server";
+    const atual = await usuarioLogado();
+    const pedido = await buscarSolicitacao(solicitacaoId);
+    if (!atual || !pedido || pedido.clienteId !== atual.id) redirect(`/solicitacoes/${solicitacaoId}`);
+    if (pedido.status !== "em andamento") redirect(`/solicitacoes/${solicitacaoId}`);
+
+    const propostaDoPedido = await buscarPropostaAceita(solicitacaoId);
+    if (!propostaDoPedido) redirect(`/solicitacoes/${solicitacaoId}`);
+
+    await concluirServico(solicitacaoId, propostaDoPedido.id);
+    redirect(`/solicitacoes/${solicitacaoId}`);
+  }
+
+  async function salvarAvaliacao(formulario: FormData) {
+    "use server";
+    const atual = await usuarioLogado();
+    const pedido = await buscarSolicitacao(solicitacaoId);
+    if (!atual || !pedido || pedido.clienteId !== atual.id) redirect(`/solicitacoes/${solicitacaoId}`);
+    if (pedido.status !== "concluida") redirect(`/solicitacoes/${solicitacaoId}`);
+
+    const jaAvaliou = await buscarAvaliacao(solicitacaoId);
+    if (jaAvaliou) redirect(`/solicitacoes/${solicitacaoId}`);
+
+    const propostaDoPedido = await buscarPropostaAceita(solicitacaoId);
+    if (!propostaDoPedido) redirect(`/solicitacoes/${solicitacaoId}`);
+
+    await criarAvaliacao({
+      solicitacaoId: solicitacaoId,
+      autorId: atual.id,
+      prestadorId: propostaDoPedido.prestadorId,
+      nota: Number(formulario.get("nota")),
+      comentario: String(formulario.get("comentario")).trim(),
+    });
+
+    redirect(`/solicitacoes/${solicitacaoId}`);
+  }
+
+  async function salvarResposta(formulario: FormData) {
+    "use server";
+    const atual = await usuarioLogado();
+    if (!atual || atual.tipo !== "prestador") redirect("/entrar");
+
+    const meu = await buscarPrestadorPorUsuario(atual.id);
+    const existente = await buscarAvaliacao(solicitacaoId);
+
+    if (!meu || !existente || existente.prestadorId !== meu.id) {
+      redirect(`/solicitacoes/${solicitacaoId}`);
+    }
+
+    await responderAvaliacao(existente.id, String(formulario.get("resposta")).trim());
     redirect(`/solicitacoes/${solicitacaoId}`);
   }
 
@@ -79,22 +157,13 @@ export default async function PaginaSolicitacao({
     <div>
       <h2>{solicitacao.titulo}</h2>
 
-      <p>
-        <label>Situação</label>
-        {solicitacao.status}
-      </p>
-      <p>
-        <label>Categoria</label>
-        {solicitacao.categoria}
-      </p>
-      <p>
-        <label>Publicado por</label>
-        {solicitacao.cliente}
-      </p>
+      <p><label>Situação</label>{solicitacao.status}</p>
+      <p><label>Categoria</label>{solicitacao.categoria}</p>
+      <p><label>Publicado por</label>{solicitacao.cliente}</p>
       <p>
         <label>Local do serviço</label>
         {solicitacao.bairro} - {solicitacao.cidade} - {solicitacao.estado}
-        {souDono ? ` (${solicitacao.logradouro}, ${solicitacao.numero})` : ""}
+        {participo ? ` (${solicitacao.logradouro}, ${solicitacao.numero})` : ""}
       </p>
       <p>
         <label>Data desejada</label>
@@ -109,6 +178,28 @@ export default async function PaginaSolicitacao({
 
       <h3>Descrição</h3>
       <p>{solicitacao.descricao}</p>
+
+      {pagamento && participo && (
+        <>
+          <h3>Pagamento</h3>
+          <p><label>Valor</label>R$ {pagamento.valor}</p>
+          <p><label>Situação</label>{pagamento.status}</p>
+          {pagamento.status === "retido" && (
+            <p className="aviso">
+              O valor está retido pela plataforma e será repassado ao prestador
+              quando o contratante confirmar que o serviço foi concluído.
+            </p>
+          )}
+        </>
+      )}
+
+      {souDono && solicitacao.status === "em andamento" && (
+        <form action={confirmarConclusao}>
+          <p>
+            <input type="submit" value="Confirmar que o serviço foi concluído" />
+          </p>
+        </form>
+      )}
 
       {souDono && (
         <>
@@ -180,17 +271,99 @@ export default async function PaginaSolicitacao({
               </p>
               <p>
                 <label htmlFor="mensagem">Mensagem para o contratante</label>
-                <textarea
-                  id="mensagem"
-                  name="mensagem"
-                  placeholder="Explique o que está incluso no valor e como você pretende fazer o serviço."
-                  required
-                ></textarea>
+                <textarea id="mensagem" name="mensagem" required></textarea>
               </p>
               <p>
                 <input type="submit" value="Enviar proposta" />
               </p>
             </form>
+          )}
+        </>
+      )}
+
+      {participo && aceita && (
+        <>
+          <h3>Mensagens</h3>
+          {conversa.length === 0 ? (
+            <p className="aviso">Nenhuma mensagem ainda.</p>
+          ) : (
+            <table>
+              <thead>
+                <tr>
+                  <th>Quem</th>
+                  <th>Mensagem</th>
+                  <th>Quando</th>
+                </tr>
+              </thead>
+              <tbody>
+                {conversa.map((mensagem) => (
+                  <tr key={mensagem.id}>
+                    <td>{mensagem.remetente}</td>
+                    <td>{mensagem.conteudo}</td>
+                    <td>{new Date(mensagem.dataEnvio).toLocaleString("pt-BR")}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+
+          <form action={mandarMensagem}>
+            <p>
+              <label htmlFor="conteudo">Escrever mensagem</label>
+              <textarea id="conteudo" name="conteudo" required></textarea>
+            </p>
+            <p>
+              <input type="submit" value="Enviar mensagem" />
+            </p>
+          </form>
+        </>
+      )}
+
+      {solicitacao.status === "concluida" && (
+        <>
+          <h3>Avaliação</h3>
+          {avaliacao ? (
+            <>
+              <p><label>Nota</label>{avaliacao.nota} de 5</p>
+              <p><label>Comentário</label>{avaliacao.comentario}</p>
+              {avaliacao.respostaPrestador ? (
+                <p><label>Resposta do prestador</label>{avaliacao.respostaPrestador}</p>
+              ) : (
+                souPrestadorAceito && (
+                  <form action={salvarResposta}>
+                    <p>
+                      <label htmlFor="resposta">Responder esta avaliação</label>
+                      <textarea id="resposta" name="resposta" required></textarea>
+                    </p>
+                    <p>
+                      <input type="submit" value="Enviar resposta" />
+                    </p>
+                  </form>
+                )
+              )}
+            </>
+          ) : souDono ? (
+            <form action={salvarAvaliacao}>
+              <p>
+                <label htmlFor="nota">Nota</label>
+                <select id="nota" name="nota" required>
+                  <option value="5">5 - Muito bom</option>
+                  <option value="4">4 - Bom</option>
+                  <option value="3">3 - Regular</option>
+                  <option value="2">2 - Ruim</option>
+                  <option value="1">1 - Muito ruim</option>
+                </select>
+              </p>
+              <p>
+                <label htmlFor="comentario">Comentário</label>
+                <textarea id="comentario" name="comentario" required></textarea>
+              </p>
+              <p>
+                <input type="submit" value="Enviar avaliação" />
+              </p>
+            </form>
+          ) : (
+            <p className="aviso">Este serviço ainda não foi avaliado.</p>
           )}
         </>
       )}

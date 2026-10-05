@@ -19,12 +19,29 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           </div>
           <div id="menu">
             <a href="/">Início</a>
-            <a href="/prestadores">Prestadores</a>
-            <a href="/solicitacoes">Solicitações</a>
-            <a href="/solicitacoes/nova">Publicar pedido</a>
+
+            {!usuario && <a href="/prestadores">Buscar prestadores</a>}
+
+            {usuario?.tipo === "cliente" && (
+              <>
+                <a href="/prestadores">Buscar prestadores</a>
+                <a href="/solicitacoes/nova">Publicar pedido</a>
+                <a href="/solicitacoes?ver=meus">Meus pedidos</a>
+              </>
+            )}
+
+            {usuario?.tipo === "prestador" && (
+              <>
+                <a href="/solicitacoes">Buscar pedidos</a>
+                <a href="/propostas">Minhas propostas</a>
+              </>
+            )}
+
             {usuario ? (
               <span id="area-usuario">
-                <a href="/perfil">Meu perfil</a> {usuario.nome} <a href="/sair">Sair</a>
+                <a href="/perfil">Meu perfil</a>
+                {usuario.nome}
+                <a href="/sair">Sair</a>
               </span>
             ) : (
               <span id="area-usuario">
