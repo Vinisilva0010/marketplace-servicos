@@ -90,6 +90,7 @@ export const propostas = pgTable("propostas", {
 export const mensagens = pgTable("mensagens", {
   id: serial("id").primaryKey(),
   solicitacaoId: integer("solicitacao_id").notNull().references(() => solicitacoesServico.id),
+  propostaId: integer("proposta_id").references(() => propostas.id),
   remetenteId: integer("remetente_id").notNull().references(() => usuarios.id),
   conteudo: text("conteudo").notNull(),
   lida: boolean("lida").notNull().default(false),

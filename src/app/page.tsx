@@ -24,14 +24,43 @@ async function PaginaVisitante() {
 
   return (
     <div>
-      <h2>Categorias de serviço</h2>
-      <p>Clique em uma categoria para ver quem atende nela.</p>
+      <h2>Encontre quem resolve, ou ofereça seu serviço</h2>
+
+      <p>
+        Aqui você descreve o serviço que precisa e recebe propostas de
+        profissionais da sua cidade, com valor e prazo. Você compara as
+        propostas, escolhe uma e paga pela plataforma. O valor só é repassado
+        ao profissional depois que você confirmar que o serviço foi feito.
+      </p>
+
+      <h3>Preciso contratar um serviço</h3>
+      <p>
+        Crie seu cadastro, descreva o que precisa e espere as propostas
+        chegarem. Você não paga nada para publicar um pedido.
+      </p>
+      <p>
+        <a href="/cadastro?tipo=cliente">Criar cadastro para contratar</a>
+      </p>
+
+      <h3>Quero oferecer meus serviços</h3>
+      <p>
+        Cadastre o que você faz, seu preço e as cidades onde atende. Você
+        recebe os pedidos abertos da sua área e envia propostas para os que
+        quiser atender.
+      </p>
+      <p>
+        <a href="/cadastro?tipo=prestador">Criar cadastro como profissional</a>
+      </p>
+
+      <h3>Serviços disponíveis</h3>
+      <p>
+        <a href="/prestadores">Ver todos os profissionais cadastrados</a>
+      </p>
       <table>
         <thead>
           <tr>
             <th>Categoria</th>
-            <th>Descrição</th>
-            <th>Serviços cadastrados</th>
+            <th>O que inclui</th>
           </tr>
         </thead>
         <tbody>
@@ -41,14 +70,10 @@ async function PaginaVisitante() {
                 <a href={`/prestadores?categoria=${categoria.id}`}>{categoria.nome}</a>
               </td>
               <td>{categoria.descricao}</td>
-              <td>{categoria.totalServicos}</td>
             </tr>
           ))}
         </tbody>
       </table>
-      <p>
-        <a href="/cadastro">Criar cadastro</a> para publicar um pedido ou oferecer seus serviços.
-      </p>
     </div>
   );
 }

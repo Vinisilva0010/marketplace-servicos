@@ -229,7 +229,11 @@ export default async function PaginaSolicitacao({
                     </td>
                     <td>R$ {proposta.valor}</td>
                     <td>{proposta.prazoDias} dia(s)</td>
-                    <td>{proposta.mensagem}</td>
+                    <td>
+                      {proposta.mensagem}
+                      <br />
+                      <a href={`/conversas/${proposta.id}`}>Conversar</a>
+                    </td>
                     <td>{proposta.status}</td>
                     <td>
                       {solicitacao.status === "aberta" && proposta.status === "enviada" ? (
@@ -255,7 +259,8 @@ export default async function PaginaSolicitacao({
           {minhaProposta ? (
             <p className="aviso">
               Você já enviou uma proposta de R$ {minhaProposta.valor} com prazo de{" "}
-              {minhaProposta.prazoDias} dia(s). Situação: {minhaProposta.status}.
+              {minhaProposta.prazoDias} dia(s). Situação: {minhaProposta.status}.{" "}
+              <a href={`/conversas/${minhaProposta.id}`}>Abrir conversa</a>
             </p>
           ) : solicitacao.status !== "aberta" ? (
             <p className="aviso">Este pedido não está mais aberto para propostas.</p>

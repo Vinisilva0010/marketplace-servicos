@@ -27,6 +27,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 <a href="/prestadores">Buscar prestadores</a>
                 <a href="/solicitacoes/nova">Publicar pedido</a>
                 <a href="/solicitacoes?ver=meus">Meus pedidos</a>
+                <a href="/conversas">Conversas</a>
               </>
             )}
 
@@ -34,13 +35,20 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               <>
                 <a href="/solicitacoes">Buscar pedidos</a>
                 <a href="/propostas">Minhas propostas</a>
+                <a href="/conversas">Conversas</a>
               </>
             )}
 
             {usuario ? (
               <span id="area-usuario">
-                <a href="/perfil">Meu perfil</a>
-                {usuario.nome}
+                <a href="/perfil" className="link-perfil">
+                  <svg width="13" height="13" viewBox="0 0 16 16" fill="#ffffff">
+                    <circle cx="8" cy="5" r="3.2" />
+                    <path d="M8 9.5c-3.2 0-5.5 1.8-5.5 4v1h11v-1c0-2.2-2.3-4-5.5-4z" />
+                  </svg>
+                  Perfil
+                </a>
+                <span className="nome-usuario">{usuario.nome}</span>
                 <a href="/sair">Sair</a>
               </span>
             ) : (
