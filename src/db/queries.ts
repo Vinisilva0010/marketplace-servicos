@@ -45,6 +45,7 @@ export async function contarPorCategoria() {
 export async function buscarServicos(filtro: {
   categoriaId?: number;
   cidadeId?: number;
+  ordem?: string;
 }) {
   const condicoes = [];
 
@@ -62,6 +63,7 @@ export async function buscarServicos(filtro: {
     .select({
       servicoId: servicosOferecidos.id,
       titulo: servicosOferecidos.titulo,
+      descricao: servicosOferecidos.descricao,
       precoBase: servicosOferecidos.precoBase,
       unidadePreco: servicosOferecidos.unidadePreco,
       prestadorId: prestadores.id,
@@ -69,15 +71,27 @@ export async function buscarServicos(filtro: {
       anosExperiencia: prestadores.anosExperiencia,
       verificado: prestadores.verificado,
       categoriaNome: categorias.nome,
+      notaMedia: sql<string>`(select round(avg(a.nota), 1) from avaliacoes a where a.prestador_id = ${prestadores.id})`,
+      totalAvaliacoes: sql<number>`(select count(*) from avaliacoes a where a.prestador_id = ${prestadores.id})`,
+      servicosFeitos: sql<number>`(select count(*) from propostas p inner join solicitacoes_servico s on s.id = p.solicitacao_id where p.prestador_id = ${prestadores.id} and p.status = 'aceita' and s.status = 'concluida')`,
     })
     .from(servicosOferecidos)
     .innerJoin(prestadores, eq(prestadores.id, servicosOferecidos.prestadorId))
     .innerJoin(usuarios, eq(usuarios.id, prestadores.usuarioId))
     .innerJoin(categorias, eq(categorias.id, servicosOferecidos.categoriaId));
 
-  if (condicoes.length > 0) {
-    return consulta.where(and(...condicoes));
+  const comFiltro = condicoes.length > 0 ? consulta.where(and(...condicoes)) : consulta;
+
+  if (filtro.ordem === "preco") {
+    return comFiltro.orderBy(sql`${servicosOferecidos.precoBase} asc nulls last`);
   }
 
-  return consulta;
+  if (filtro.ordem === "experiencia") {
+    return comFiltro.orderBy(sql`${prestadores.anosExperiencia} desc nulls last`);
+  }
+
+  return comFiltro.orderBy(
+    sql`(select avg(a.nota) from avaliacoes a where a.prestador_id = ${prestadores.id}) desc nulls last`,
+    sql`${prestadores.verificado} desc`
+  );
 }
