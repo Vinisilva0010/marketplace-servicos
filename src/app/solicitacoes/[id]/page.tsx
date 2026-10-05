@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { usuarioLogado } from "@/lib/sessao";
-import { buscarPrestadorPorUsuario } from "@/db/perfil";
+import { buscarPrestadorPorUsuario, historicoDoContratante } from "@/db/perfil";
 import {
   buscarSolicitacao, listarPropostas, propostaDoPrestador,
   enviarProposta, aceitarProposta,
@@ -39,6 +39,7 @@ export default async function PaginaSolicitacao({
   const meuPrestador = logado?.tipo === "prestador" ? await buscarPrestadorPorUsuario(logado.id) : null;
   const minhaProposta = meuPrestador ? await propostaDoPrestador(solicitacaoId, meuPrestador.id) : null;
   const propostasRecebidas = souDono ? await listarPropostas(solicitacaoId) : [];
+  const historico = !souDono && meuPrestador ? await historicoDoContratante(solicitacao.clienteId) : null;
 
   const aceita = await buscarPropostaAceita(solicitacaoId);
   const souPrestadorAceito = Boolean(meuPrestador && aceita && aceita.prestadorId === meuPrestador.id);
@@ -187,6 +188,36 @@ export default async function PaginaSolicitacao({
 
       <h3>Descrição</h3>
       <p>{solicitacao.descricao}</p>
+
+      {historico && (
+        <>
+          <h3>Sobre quem publicou</h3>
+          <p>
+            <label>Na plataforma desde</label>
+            {historico.dataCadastro
+              ? new Date(historico.dataCadastro).toLocaleDateString("pt-BR")
+              : "-"}
+          </p>
+          <p>
+            <label>Pedidos publicados</label>
+            {historico.pedidos.total}
+          </p>
+          <p>
+            <label>Serviços concluídos</label>
+            {historico.pedidos.concluidos}
+          </p>
+          <p>
+            <label>Pedidos cancelados</label>
+            {historico.pedidos.cancelados}
+          </p>
+          <p>
+            <label>Notas que costuma dar</label>
+            {Number(historico.notasDadas.total) > 0
+              ? `${historico.notasDadas.media} de 5, em ${historico.notasDadas.total} avaliação(ões)`
+              : "Ainda não avaliou ninguém"}
+          </p>
+        </>
+      )}
 
       {pagamento && participo && (
         <>

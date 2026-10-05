@@ -7,6 +7,7 @@ import {
   atualizarDadosPessoais, atualizarDadosProfissionais,
   adicionarServico, atualizarServico, removerServico,
   adicionarCidadeAtuacao, removerCidadeAtuacao,
+  buscarEnderecos, adicionarEndereco,
 } from "@/db/perfil";
 
 export default async function PerfilPrestador({ usuarioId }: { usuarioId: number }) {
@@ -22,7 +23,7 @@ export default async function PerfilPrestador({ usuarioId }: { usuarioId: number
     );
   }
 
-  const [servicos, cidadesAtuacao, listaAvaliacoes, media, listaCidades, listaCategorias] =
+  const [servicos, cidadesAtuacao, listaAvaliacoes, media, listaCidades, listaCategorias, listaEnderecos] =
     await Promise.all([
       buscarServicosDoPrestador(prestador.id),
       buscarCidadesDoPrestador(prestador.id),
@@ -30,7 +31,24 @@ export default async function PerfilPrestador({ usuarioId }: { usuarioId: number
       mediaDoPrestador(prestador.id),
       listarCidades(),
       listarCategorias(),
+      buscarEnderecos(usuarioId),
     ]);
+
+  async function salvarEndereco(formulario: FormData) {
+    "use server";
+    const atual = await usuarioLogado();
+    if (!atual) redirect("/entrar");
+    await adicionarEndereco({
+      usuarioId: atual.id,
+      cidadeId: Number(formulario.get("cidadeId")),
+      logradouro: String(formulario.get("logradouro")).trim(),
+      numero: String(formulario.get("numero")).trim(),
+      complemento: String(formulario.get("complemento")).trim(),
+      bairro: String(formulario.get("bairro")).trim(),
+      cep: String(formulario.get("cep")).trim(),
+    });
+    redirect("/perfil");
+  }
 
   async function salvarPessoais(formulario: FormData) {
     "use server";
@@ -308,6 +326,66 @@ export default async function PerfilPrestador({ usuarioId }: { usuarioId: number
             : `CPF ${prestador.documento}`}
         </p>
         <p><input type="submit" value="Salvar meus dados" /></p>
+      </form>
+
+      <h3>Meu endereço</h3>
+      <p>Seu endereço não aparece para os contratantes. Ele serve para o seu cadastro.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Rua</th>
+            <th>Número</th>
+            <th>Complemento</th>
+            <th>Bairro</th>
+            <th>Cidade</th>
+            <th>CEP</th>
+          </tr>
+        </thead>
+        <tbody>
+          {listaEnderecos.map((endereco) => (
+            <tr key={endereco.id}>
+              <td>{endereco.logradouro}</td>
+              <td>{endereco.numero}</td>
+              <td>{endereco.complemento}</td>
+              <td>{endereco.bairro}</td>
+              <td>{endereco.cidade} - {endereco.estado}</td>
+              <td>{endereco.cep}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <form action={salvarEndereco}>
+        <h4>Adicionar endereço</h4>
+        <p>
+          <label htmlFor="cepNovo">CEP</label>
+          <input type="text" id="cepNovo" name="cep" required />
+        </p>
+        <p>
+          <label htmlFor="cidadeEndereco">Cidade</label>
+          <select id="cidadeEndereco" name="cidadeId" required>
+            {listaCidades.map((cidade) => (
+              <option key={cidade.id} value={cidade.id}>{cidade.nome} - {cidade.estado}</option>
+            ))}
+          </select>
+        </p>
+        <p>
+          <label htmlFor="bairroNovo">Bairro</label>
+          <input type="text" id="bairroNovo" name="bairro" required />
+        </p>
+        <p>
+          <label htmlFor="logradouroNovo">Rua</label>
+          <input type="text" id="logradouroNovo" name="logradouro" required />
+        </p>
+        <p>
+          <label htmlFor="numeroNovo">Número</label>
+          <input type="text" id="numeroNovo" name="numero" required />
+        </p>
+        <p>
+          <label htmlFor="complementoNovo">Complemento</label>
+          <input type="text" id="complementoNovo" name="complemento" />
+        </p>
+        <p><input type="submit" value="Adicionar endereço" /></p>
       </form>
     </div>
   );

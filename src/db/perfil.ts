@@ -161,3 +161,34 @@ export async function adicionarEndereco(dados: {
 }) {
   await db.insert(enderecos).values(dados);
 }
+
+export async function historicoDoContratante(clienteId: number) {
+  const resultado = await db
+    .select({
+      total: sql<number>`count(*)`,
+      concluidos: sql<number>`count(*) filter (where ${solicitacoesServico.status} = 'concluida')`,
+      cancelados: sql<number>`count(*) filter (where ${solicitacoesServico.status} = 'cancelada')`,
+      desde: sql<Date>`min(${solicitacoesServico.dataCriacao})`,
+    })
+    .from(solicitacoesServico)
+    .where(eq(solicitacoesServico.clienteId, clienteId));
+
+  const notasDadas = await db
+    .select({
+      media: sql<string>`round(avg(${avaliacoes.nota}), 1)`,
+      total: sql<number>`count(*)`,
+    })
+    .from(avaliacoes)
+    .where(eq(avaliacoes.autorId, clienteId));
+
+  const cadastro = await db
+    .select({ dataCadastro: usuarios.dataCadastro })
+    .from(usuarios)
+    .where(eq(usuarios.id, clienteId));
+
+  return {
+    pedidos: resultado[0],
+    notasDadas: notasDadas[0],
+    dataCadastro: cadastro[0]?.dataCadastro ?? null,
+  };
+}
