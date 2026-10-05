@@ -1,5 +1,7 @@
 import "./globals.css";
 import { usuarioLogado } from "@/lib/sessao";
+import { buscarPrestadorPorUsuario } from "@/db/perfil";
+import { avisosContratante, avisosPrestador } from "@/db/avisos";
 
 export const metadata = {
   title: "Marketplace de Serviços Gerais",
@@ -7,8 +9,27 @@ export const metadata = {
 
 export const dynamic = "force-dynamic";
 
+function Contador({ valor }: { valor: number }) {
+  if (valor === 0) return null;
+  return <span className="contador">{valor}</span>;
+}
+
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const usuario = await usuarioLogado();
+
+  let avisosC = { mensagens: 0, propostas: 0, aConfirmar: 0, aAvaliar: 0 };
+  let avisosP = { mensagens: 0, convites: 0, emAndamento: 0, avaliacoes: 0 };
+
+  if (usuario?.tipo === "cliente") {
+    avisosC = await avisosContratante(usuario.id);
+  }
+
+  if (usuario?.tipo === "prestador") {
+    const prestador = await buscarPrestadorPorUsuario(usuario.id);
+    if (prestador) {
+      avisosP = await avisosPrestador(prestador.id, usuario.id);
+    }
+  }
 
   return (
     <html lang="pt-BR">
@@ -26,16 +47,31 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               <>
                 <a href="/prestadores">Buscar prestadores</a>
                 <a href="/solicitacoes/nova">Publicar pedido</a>
-                <a href="/solicitacoes?ver=meus">Meus pedidos</a>
-                <a href="/conversas">Conversas</a>
+                <a href="/solicitacoes?ver=meus">
+                  Meus pedidos
+                  <Contador valor={avisosC.propostas + avisosC.aConfirmar + avisosC.aAvaliar} />
+                </a>
+                <a href="/conversas">
+                  Conversas
+                  <Contador valor={avisosC.mensagens} />
+                </a>
               </>
             )}
 
             {usuario?.tipo === "prestador" && (
               <>
-                <a href="/solicitacoes">Buscar pedidos</a>
-                <a href="/propostas">Minhas propostas</a>
-                <a href="/conversas">Conversas</a>
+                <a href="/solicitacoes">
+                  Buscar pedidos
+                  <Contador valor={avisosP.convites} />
+                </a>
+                <a href="/propostas">
+                  Minhas propostas
+                  <Contador valor={avisosP.emAndamento} />
+                </a>
+                <a href="/conversas">
+                  Conversas
+                  <Contador valor={avisosP.mensagens} />
+                </a>
               </>
             )}
 
@@ -47,6 +83,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                     <path d="M8 9.5c-3.2 0-5.5 1.8-5.5 4v1h11v-1c0-2.2-2.3-4-5.5-4z" />
                   </svg>
                   Perfil
+                  <Contador valor={usuario.tipo === "prestador" ? avisosP.avaliacoes : 0} />
                 </a>
                 <span className="nome-usuario">{usuario.nome}</span>
                 <a href="/sair">Sair</a>
