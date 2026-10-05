@@ -54,7 +54,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             ) : (
               <span id="area-usuario">
                 <a href="/entrar">Entrar</a>
-                <a href="/cadastro">Criar cadastro</a>
+                <a href="/cadastro?tipo=cliente">Criar cadastro</a>
               </span>
             )}
           </div>

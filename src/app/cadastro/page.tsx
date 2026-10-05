@@ -82,27 +82,32 @@ export default async function PaginaCadastro({
         <p className="aviso">Este email já está cadastrado. Use outro email.</p>
       )}
 
-      <form method="get" action="/cadastro">
-        <p>
-          <label htmlFor="tipoEscolha">Quero me cadastrar como</label>
-          <select id="tipoEscolha" name="tipo" defaultValue={tipo}>
-            <option value="cliente">Cliente (quero contratar serviços)</option>
-            <option value="prestador">Prestador (quero oferecer serviços)</option>
-          </select>
-        </p>
-        {tipo === "prestador" && (
-          <p>
-            <label htmlFor="pessoaEscolha">Atuo como</label>
-            <select id="pessoaEscolha" name="pessoa" defaultValue={tipoPessoa}>
-              <option value="fisica">Pessoa física (CPF)</option>
-              <option value="juridica">Pessoa jurídica (CNPJ)</option>
-            </select>
-          </p>
+      <p>
+        {tipo === "prestador"
+          ? "Você está criando um cadastro de profissional, para oferecer serviços."
+          : "Você está criando um cadastro para contratar serviços."}
+      </p>
+      <p>
+        {tipo === "prestador" ? (
+          <a href="/cadastro?tipo=cliente">Quero me cadastrar para contratar serviços</a>
+        ) : (
+          <a href="/cadastro?tipo=prestador">Quero me cadastrar para oferecer serviços</a>
         )}
+      </p>
+
+      {tipo === "prestador" && (
         <p>
-          <input type="submit" value="Atualizar formulário" />
+          {tipoPessoa === "juridica" ? (
+            <a href="/cadastro?tipo=prestador&pessoa=fisica">
+              Sou pessoa física (trabalho com CPF)
+            </a>
+          ) : (
+            <a href="/cadastro?tipo=prestador&pessoa=juridica">
+              Tenho empresa (trabalho com CNPJ)
+            </a>
+          )}
         </p>
-      </form>
+      )}
 
       <hr />
 

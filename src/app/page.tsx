@@ -2,6 +2,7 @@ import { usuarioLogado } from "@/lib/sessao";
 import { contarPorCategoria } from "@/db/queries";
 import { buscarPrestadorPorUsuario } from "@/db/perfil";
 import { painelContratante, painelPrestador } from "@/db/paineis";
+import { convitesDoPrestador } from "@/db/convites";
 
 export const dynamic = "force-dynamic";
 
@@ -204,6 +205,8 @@ async function PainelPrestador({ usuarioId, nome }: { usuarioId: number; nome: s
   }
 
   const painel = await painelPrestador(prestador.id);
+  const convitesRecebidos = await convitesDoPrestador(prestador.id);
+  const convitesAbertos = convitesRecebidos.filter((c) => c.status === "aberta");
 
   return (
     <div>
@@ -229,6 +232,37 @@ async function PainelPrestador({ usuarioId, nome }: { usuarioId: number; nome: s
           Você precisa ter pelo menos um serviço e uma cidade cadastrados para
           receber pedidos. <a href="/perfil">Completar meu perfil</a>
         </p>
+      )}
+
+      {convitesAbertos.length > 0 && (
+        <>
+          <h3>Você foi chamado nestes pedidos ({convitesAbertos.length})</h3>
+          <p>O contratante viu o seu perfil e chamou você diretamente.</p>
+          <table>
+            <thead>
+              <tr>
+                <th>Pedido</th>
+                <th>Categoria</th>
+                <th>Contratante</th>
+                <th>Local</th>
+                <th>Orçamento</th>
+              </tr>
+            </thead>
+            <tbody>
+              {convitesAbertos.map((convite) => (
+                <tr key={convite.id}>
+                  <td>
+                    <a href={`/solicitacoes/${convite.solicitacaoId}`}>{convite.titulo}</a>
+                  </td>
+                  <td>{convite.categoria}</td>
+                  <td>{convite.contratante}</td>
+                  <td>{convite.bairro} - {convite.cidade}</td>
+                  <td>{convite.orcamentoMaximo ? `R$ ${convite.orcamentoMaximo}` : "Não informado"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </>
       )}
 
       <h3>Pedidos novos para você ({painel.novosPedidos.length})</h3>

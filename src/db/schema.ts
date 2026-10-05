@@ -117,3 +117,10 @@ export const avaliacoes = pgTable("avaliacoes", {
   respostaPrestador: text("resposta_prestador"),
   dataAvaliacao: timestamp("data_avaliacao").notNull().defaultNow(),
 });
+
+export const convites = pgTable("convites", {
+  id: serial("id").primaryKey(),
+  solicitacaoId: integer("solicitacao_id").notNull().references(() => solicitacoesServico.id),
+  prestadorId: integer("prestador_id").notNull().references(() => prestadores.id),
+  dataEnvio: timestamp("data_envio").notNull().defaultNow(),
+});

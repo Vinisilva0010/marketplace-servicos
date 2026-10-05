@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { prestadores, usuarios } from "@/db/schema";
+import ChamarProfissional from "./chamar";
 import {
   buscarServicosDoPrestador, buscarCidadesDoPrestador,
   buscarAvaliacoesDoPrestador, mediaDoPrestador,
@@ -10,10 +11,13 @@ export const dynamic = "force-dynamic";
 
 export default async function PerfilPublico({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ convite?: string }>;
 }) {
   const { id } = await params;
+  const parametros = await searchParams;
   const prestadorId = Number(id);
 
   const achados = await db
@@ -38,7 +42,9 @@ export default async function PerfilPublico({
       <div>
         <h2>Prestador não encontrado</h2>
         <p className="aviso">Este prestador não existe ou foi removido.</p>
-        <p><a href="/prestadores">Voltar para a busca</a></p>
+        <ChamarProfissional prestadorId={prestador.id} prestadorNome={prestador.nome} />
+
+      <p><a href="/prestadores">Voltar para a busca</a></p>
       </div>
     );
   }
@@ -53,6 +59,13 @@ export default async function PerfilPublico({
   return (
     <div>
       <h2>{prestador.nome}</h2>
+
+      {parametros.convite === "1" && (
+        <p className="aviso">
+          Convite enviado. Este profissional vai ver o seu pedido em destaque e
+          pode enviar uma proposta.
+        </p>
+      )}
 
       <p>
         <label>Avaliação</label>
@@ -136,6 +149,8 @@ export default async function PerfilPublico({
           </tbody>
         </table>
       )}
+
+      <ChamarProfissional prestadorId={prestador.id} prestadorNome={prestador.nome} />
 
       <p><a href="/prestadores">Voltar para a busca</a></p>
     </div>
