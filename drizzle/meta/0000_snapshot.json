@@ -1,11 +1,11 @@
 {
-  "id": "b0dbfb58-fdfe-4ecf-82e6-84624ecddb29",
+  "id": "97f546c5-d81d-4efc-9fed-45d49cd8284a",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.categories": {
-      "name": "categories",
+    "public.categorias": {
+      "name": "categorias",
       "schema": "",
       "columns": {
         "id": {
@@ -14,9 +14,46 @@
           "primaryKey": true,
           "notNull": true
         },
-        "name": {
-          "name": "name",
+        "nome": {
+          "name": "nome",
           "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "descricao": {
+          "name": "descricao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.cidades": {
+      "name": "cidades",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "nome": {
+          "name": "nome",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "estado": {
+          "name": "estado",
+          "type": "varchar(2)",
           "primaryKey": false,
           "notNull": true
         }
@@ -29,8 +66,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.providers": {
-      "name": "providers",
+    "public.enderecos": {
+      "name": "enderecos",
       "schema": "",
       "columns": {
         "id": {
@@ -39,110 +76,70 @@
           "primaryKey": true,
           "notNull": true
         },
-        "user_id": {
-          "name": "user_id",
+        "usuario_id": {
+          "name": "usuario_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
-        "category_id": {
-          "name": "category_id",
+        "cidade_id": {
+          "name": "cidade_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
-        "bio": {
-          "name": "bio",
-          "type": "text",
+        "logradouro": {
+          "name": "logradouro",
+          "type": "varchar(150)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "numero": {
+          "name": "numero",
+          "type": "varchar(20)",
           "primaryKey": false,
           "notNull": false
         },
-        "region": {
-          "name": "region",
+        "complemento": {
+          "name": "complemento",
           "type": "varchar(100)",
           "primaryKey": false,
           "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "providers_user_id_users_id_fk": {
-          "name": "providers_user_id_users_id_fk",
-          "tableFrom": "providers",
-          "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
         },
-        "providers_category_id_categories_id_fk": {
-          "name": "providers_category_id_categories_id_fk",
-          "tableFrom": "providers",
-          "tableTo": "categories",
-          "columnsFrom": [
-            "category_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.reviews": {
-      "name": "reviews",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "request_id": {
-          "name": "request_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "rating": {
-          "name": "rating",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "comment": {
-          "name": "comment",
-          "type": "text",
+        "bairro": {
+          "name": "bairro",
+          "type": "varchar(100)",
           "primaryKey": false,
           "notNull": false
         },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
+        "cep": {
+          "name": "cep",
+          "type": "varchar(9)",
           "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
+          "notNull": false
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "reviews_request_id_service_requests_id_fk": {
-          "name": "reviews_request_id_service_requests_id_fk",
-          "tableFrom": "reviews",
-          "tableTo": "service_requests",
+        "enderecos_usuario_id_usuarios_id_fk": {
+          "name": "enderecos_usuario_id_usuarios_id_fk",
+          "tableFrom": "enderecos",
+          "tableTo": "usuarios",
           "columnsFrom": [
-            "request_id"
+            "usuario_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "enderecos_cidade_id_cidades_id_fk": {
+          "name": "enderecos_cidade_id_cidades_id_fk",
+          "tableFrom": "enderecos",
+          "tableTo": "cidades",
+          "columnsFrom": [
+            "cidade_id"
           ],
           "columnsTo": [
             "id"
@@ -157,8 +154,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.service_requests": {
-      "name": "service_requests",
+    "public.usuarios": {
+      "name": "usuarios",
       "schema": "",
       "columns": {
         "id": {
@@ -167,80 +164,8 @@
           "primaryKey": true,
           "notNull": true
         },
-        "client_id": {
-          "name": "client_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "provider_id": {
-          "name": "provider_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "status": {
-          "name": "status",
-          "type": "varchar(20)",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'pending'"
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "service_requests_client_id_users_id_fk": {
-          "name": "service_requests_client_id_users_id_fk",
-          "tableFrom": "service_requests",
-          "tableTo": "users",
-          "columnsFrom": [
-            "client_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "service_requests_provider_id_providers_id_fk": {
-          "name": "service_requests_provider_id_providers_id_fk",
-          "tableFrom": "service_requests",
-          "tableTo": "providers",
-          "columnsFrom": [
-            "provider_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.users": {
-      "name": "users",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
+        "nome": {
+          "name": "nome",
           "type": "varchar(100)",
           "primaryKey": false,
           "notNull": true
@@ -251,25 +176,45 @@
           "primaryKey": false,
           "notNull": true
         },
-        "password_hash": {
-          "name": "password_hash",
+        "senha_hash": {
+          "name": "senha_hash",
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
         },
-        "role": {
-          "name": "role",
+        "telefone": {
+          "name": "telefone",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tipo": {
+          "name": "tipo",
           "type": "varchar(20)",
           "primaryKey": false,
           "notNull": true
+        },
+        "ativo": {
+          "name": "ativo",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "data_cadastro": {
+          "name": "data_cadastro",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
         }
       },
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "users_email_unique": {
-          "name": "users_email_unique",
+        "usuarios_email_unique": {
+          "name": "usuarios_email_unique",
           "nullsNotDistinct": false,
           "columns": [
             "email"

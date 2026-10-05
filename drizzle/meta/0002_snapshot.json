@@ -1,6 +1,6 @@
 {
-  "id": "508b8c85-ba0e-47c4-a988-5a0b67a3fe66",
-  "prevId": "97f546c5-d81d-4efc-9fed-45d49cd8284a",
+  "id": "eb25df08-a278-445a-b57c-c7aaf84184f8",
+  "prevId": "508b8c85-ba0e-47c4-a988-5a0b67a3fe66",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -284,6 +284,96 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.propostas": {
+      "name": "propostas",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "solicitacao_id": {
+          "name": "solicitacao_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "prestador_id": {
+          "name": "prestador_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "valor": {
+          "name": "valor",
+          "type": "numeric(10, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "prazo_dias": {
+          "name": "prazo_dias",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "mensagem": {
+          "name": "mensagem",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'enviada'"
+        },
+        "data_envio": {
+          "name": "data_envio",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "propostas_solicitacao_id_solicitacoes_servico_id_fk": {
+          "name": "propostas_solicitacao_id_solicitacoes_servico_id_fk",
+          "tableFrom": "propostas",
+          "tableTo": "solicitacoes_servico",
+          "columnsFrom": [
+            "solicitacao_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "propostas_prestador_id_prestadores_id_fk": {
+          "name": "propostas_prestador_id_prestadores_id_fk",
+          "tableFrom": "propostas",
+          "tableTo": "prestadores",
+          "columnsFrom": [
+            "prestador_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.servicos_oferecidos": {
       "name": "servicos_oferecidos",
       "schema": "",
@@ -352,6 +442,121 @@
           "tableTo": "categorias",
           "columnsFrom": [
             "categoria_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.solicitacoes_servico": {
+      "name": "solicitacoes_servico",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "cliente_id": {
+          "name": "cliente_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "categoria_id": {
+          "name": "categoria_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "endereco_id": {
+          "name": "endereco_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "titulo": {
+          "name": "titulo",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "descricao": {
+          "name": "descricao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "data_desejada": {
+          "name": "data_desejada",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "orcamento_maximo": {
+          "name": "orcamento_maximo",
+          "type": "numeric(10, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'aberta'"
+        },
+        "data_criacao": {
+          "name": "data_criacao",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "solicitacoes_servico_cliente_id_usuarios_id_fk": {
+          "name": "solicitacoes_servico_cliente_id_usuarios_id_fk",
+          "tableFrom": "solicitacoes_servico",
+          "tableTo": "usuarios",
+          "columnsFrom": [
+            "cliente_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "solicitacoes_servico_categoria_id_categorias_id_fk": {
+          "name": "solicitacoes_servico_categoria_id_categorias_id_fk",
+          "tableFrom": "solicitacoes_servico",
+          "tableTo": "categorias",
+          "columnsFrom": [
+            "categoria_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "solicitacoes_servico_endereco_id_enderecos_id_fk": {
+          "name": "solicitacoes_servico_endereco_id_enderecos_id_fk",
+          "tableFrom": "solicitacoes_servico",
+          "tableTo": "enderecos",
+          "columnsFrom": [
+            "endereco_id"
           ],
           "columnsTo": [
             "id"

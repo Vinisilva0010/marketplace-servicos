@@ -1,1 +1,0 @@
-ALTER TABLE "service_requests" ADD COLUMN "description" text NOT NULL;
