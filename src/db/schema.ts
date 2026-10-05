@@ -1,4 +1,4 @@
-import { pgTable, serial, varchar, text, integer, numeric, boolean, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, serial, varchar, text, integer, numeric, boolean, timestamp, date } from "drizzle-orm/pg-core";
 
 export const cidades = pgTable("cidades", {
   id: serial("id").primaryKey(),
@@ -12,6 +12,8 @@ export const usuarios = pgTable("usuarios", {
   email: varchar("email", { length: 150 }).notNull().unique(),
   senhaHash: varchar("senha_hash", { length: 255 }).notNull(),
   telefone: varchar("telefone", { length: 20 }),
+  cpf: varchar("cpf", { length: 14 }),
+  dataNascimento: date("data_nascimento"),
   tipo: varchar("tipo", { length: 20 }).notNull(),
   ativo: boolean("ativo").notNull().default(true),
   dataCadastro: timestamp("data_cadastro").notNull().defaultNow(),
@@ -37,6 +39,8 @@ export const categorias = pgTable("categorias", {
 export const prestadores = pgTable("prestadores", {
   id: serial("id").primaryKey(),
   usuarioId: integer("usuario_id").notNull().unique().references(() => usuarios.id),
+  tipoPessoa: varchar("tipo_pessoa", { length: 10 }).notNull().default("fisica"),
+  razaoSocial: varchar("razao_social", { length: 150 }),
   apresentacao: text("apresentacao"),
   anosExperiencia: integer("anos_experiencia"),
   documento: varchar("documento", { length: 20 }),
