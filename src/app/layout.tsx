@@ -7,6 +7,11 @@ export const metadata = {
   title: "Marketplace de Serviços Gerais",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
+
 export const dynamic = "force-dynamic";
 
 function Contador({ valor }: { valor: number }) {

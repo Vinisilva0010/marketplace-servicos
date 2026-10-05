@@ -185,3 +185,91 @@ input[type=submit] {
   margin-left: 4px;
   vertical-align: 1px;
 }
+
+@media (max-width: 920px) {
+  #container {
+    width: auto;
+    margin: 0;
+    border-left: none;
+    border-right: none;
+  }
+
+  #cabecalho h1 {
+    font-size: 17px;
+  }
+
+  #menu {
+    padding: 8px 10px;
+  }
+
+  #menu a {
+    display: inline-block;
+    margin-right: 14px;
+    margin-bottom: 4px;
+  }
+
+  #area-usuario {
+    float: none;
+    display: block;
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid #4a6179;
+  }
+
+  #area-usuario a {
+    margin-left: 0;
+    margin-right: 14px;
+  }
+
+  .nome-usuario {
+    margin-left: 0;
+    margin-right: 10px;
+  }
+
+  #conteudo {
+    padding: 12px 10px;
+  }
+
+  input[type=text], input[type=email], input[type=password],
+  input[type=number], input[type=date], select, textarea {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    font-size: 16px;
+  }
+
+  input[type=submit] {
+    width: 100%;
+    padding: 10px;
+    font-size: 15px;
+  }
+
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  table td, table th {
+    white-space: normal;
+    min-width: 110px;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    font-size: 15px;
+  }
+
+  #cabecalho h1 {
+    font-size: 16px;
+  }
+
+  h2 {
+    font-size: 16px;
+  }
+
+  h3 {
+    font-size: 15px;
+  }
+}
