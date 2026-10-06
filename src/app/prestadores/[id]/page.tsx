@@ -42,9 +42,7 @@ export default async function PerfilPublico({
       <div>
         <h2>Prestador não encontrado</h2>
         <p className="aviso">Este prestador não existe ou foi removido.</p>
-        <ChamarProfissional prestadorId={prestador.id} prestadorNome={prestador.nome} />
-
-      <p><a href="/prestadores">Voltar para a busca</a></p>
+        <p><a href="/prestadores">Voltar para a busca</a></p>
       </div>
     );
   }
@@ -149,6 +147,8 @@ export default async function PerfilPublico({
           </tbody>
         </table>
       )}
+
+      <ChamarProfissional prestadorId={prestador.id} prestadorNome={prestador.nome} />
 
       <ChamarProfissional prestadorId={prestador.id} prestadorNome={prestador.nome} />
 

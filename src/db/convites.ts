@@ -47,7 +47,7 @@ export async function convitesDoPrestador(prestadorId: number) {
       solicitacaoId: solicitacoesServico.id,
       titulo: solicitacoesServico.titulo,
       descricao: solicitacoesServico.descricao,
-      status: solicitacoesServico.status,
+      statusPedido: solicitacoesServico.status,
       orcamentoMaximo: solicitacoesServico.orcamentoMaximo,
       categoria: categorias.nome,
       contratante: usuarios.nome,
